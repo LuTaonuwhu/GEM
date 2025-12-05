@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Detectors -->
+    <inductionLoop id="e1_0" lane="E6_0" pos="5.00" period="300.00" file="e1_0.xml"/>
+    
+    <laneAreaDetector id="e2_0" lane="-E6_0" pos="100.00" length="115.0" period="300.00" friendlyPos="true" file="e2_0.xml"/>
+    <laneAreaDetector id="e2_1" lane="E6_0" endPos="93.50" length="115.0" period="300.00" friendlyPos="true" file="e2_1.xml"/>
+    <laneAreaDetector id="e2_2" lane="-E9_0" pos="10.00" length="90.00" period="300.00" file="e2_2.xml"/>
+    <laneAreaDetector id="e2_3" lane="E9_0" pos="93.50" length="90.00" period="300.00" file="e2_3.xml"/>
+    
+    <laneAreaDetector id="e2_4" lane="E7_0" pos="191.50" length="17.00" period="300.00" file="e2_4.xml"/>
+    <laneAreaDetector id="e2_5" lane="-E8_0" pos="191.50" length="17.00" period="300.00" file="e2_5.xml"/>
+</additional>
