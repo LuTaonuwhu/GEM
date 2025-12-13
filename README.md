@@ -41,6 +41,10 @@ GEM is able to simulate a VTP process with fully-controllable errors.
 
   `python Simulate_Prediction.py --help`
 
+## Dependency
+- SUMO
+- Matplotlib
+- Shapely
 
 
 
