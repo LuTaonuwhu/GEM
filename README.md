@@ -19,11 +19,11 @@ GEM is able to simulate a VTP process with fully-controllable errors.
 ### Batch Execution
 - Generate FCD file:
 
-  `python Simulate_Prediction.py -g -f /your/path/to/FCD/file`
+  `python Simulate_Prediction.py -g -f /the/saving/path/to/FCD/file`
 
 - Dump FCD file:
   
-  `python FCDFile.py -f /your/path/to/FCD/file -d /your/path/to/dumped/FCD/file`
+  `python FCDFile.py -f /path/to/your/FCD/file -d /path/for/dumping/FCD/file`
 
 - Arrange your experiment plan:
 
