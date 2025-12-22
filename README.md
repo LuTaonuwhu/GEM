@@ -1,4 +1,4 @@
-## GEM: a generalized error model for VTP
+## GEM: a generalized error model for vehicle trajectory prediction
 A generalized error model (GEM) for vehicle trajectory prediction (VTP).
 
 This is the source code of our VTP simulation system proposed in our paper: "How Accurate Should Prediction Be for Connected Autonomous Vehicles at Blind Intersections?" 
