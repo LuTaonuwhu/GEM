@@ -45,13 +45,19 @@ GEM is able to simulate a VTP process with fully-controllable errors.
   Three high-dynamic GT trajectories, selected from nuPlan, are used to demonstrate the the controllability and diversity of our GEM.
   
   demo1
-  <img src="demo/demo_1.jpg", width="300">
+  <p align="center">
+  <img src="demo/demo_1.jpg", width="50%">
+  </p>
 
   demo2
-  <img src="demo/demo_2.jpg", width="300">
+  <p align="center">
+  <img src="demo/demo_2.jpg", width="50%">
+  </p>
 
   demo3
-  <img src="demo/demo_3.jpg", width="300">
+  <p align="center">
+  <img src="demo/demo_3.jpg", width="50%">
+  </p>
 
 
 ## Dependency
