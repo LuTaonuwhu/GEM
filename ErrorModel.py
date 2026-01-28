@@ -5,6 +5,7 @@ import argparse as ap
 import math
 import random
 import FND
+
 random.seed(10)
 
 font_config = {"font.family": "serif",
@@ -133,8 +134,6 @@ def mix_errors(ori_xs, ori_ys, ori_hs, dde, yde, forward):
     return xs, ys
 
 
-
-
 def random_positive_or_negative(rdm):
     if rdm.random() < 0.5:
         return 1
@@ -238,6 +237,113 @@ def make_samples(desired_mae, k, mu_yaw, sigma_yaw, max_t, samples):
                " sigma_yaw " + str(sigma_yaw).replace('.', '-') + \
                " samples " + str(samples) + '.png'
     figname='output/errormodels/test/'+ parameters
+    fig2.savefig(figname)
+
+def make_demo(gt_x, gt_y, desired_mae, k, mu_yaw, sigma_yaw, delta_t, samples, save_path, left_right='left'):
+    ori_xs = gt_x
+    ori_ys = gt_y
+
+    steps = len(ori_xs)
+    max_t = delta_t * steps
+
+    # calculate heading angles from trajectory
+    ori_hs = np.repeat(0, steps)
+    for i in range(1, len(ori_xs)):
+        delta_x = ori_xs[i] - ori_xs[i-1]
+        delta_y = ori_ys[i] - ori_ys[i-1]
+        ori_hs[i] = math.degrees(math.atan2(delta_x, delta_y))
+    ori_hs[0] = ori_hs[1]
+
+    error_matrix = []
+
+    max_d_random_list = []
+
+    fig2, ax2 = plt.subplots(figsize=(5, 4))
+
+    parameter_m = FND.Function_M(k)
+    gaussian_mu = desired_mae / parameter_m
+    
+    pk = FND.Function_P(k)
+
+    sigma_Y_theo = np.sqrt(1 + k**2 - parameter_m**2)*gaussian_mu
+
+    print(f"Gaussian_mu: {gaussian_mu}, k: {k}, m(k): {parameter_m}, theoretical sigma_Y: {sigma_Y_theo}")
+    
+    count = 0
+    for i in range(samples):
+        max_d_random = random.gauss(mu=gaussian_mu, sigma=k*gaussian_mu)
+        max_y_random = random.gauss(mu=mu_yaw, sigma=sigma_yaw)
+       
+        if(abs(max_d_random) < 1e-3 or abs(max_y_random) < 1e-1):
+            continue
+
+        max_d_random_list.append(abs(max_d_random))
+        dde = DistanceDeviationErrorModel(max_d=max_d_random, max_t=max_t)
+        yde = YawDeviationErrorModel(max_alpha=max_y_random, max_t=max_t)
+        xs, ys = mix_errors(ori_xs, ori_ys, ori_hs, dde.getAllDD(), yde.getAllYD(), random_true_or_false(random))#random_true_or_false(random)
+
+        d = np.sqrt((xs - ori_xs)**2 + (ys - ori_ys)**2)
+        error_matrix.append(d)
+
+        count += 1
+
+        ax2.plot(xs, ys, linewidth=1)
+
+    error_matrix = np.array(error_matrix)
+    error_matrix.reshape(count, steps)
+
+    mae = np.mean(error_matrix, axis=0)
+    fde = error_matrix[:, steps-1]
+
+    sigma_Y_real = np.std(fde)
+
+    t = np.linspace(0, max_t, steps)
+
+    ax2.plot(ori_xs, ori_ys, '-k', linewidth=3)
+
+    plt.title(r'$\mu_D=%4.2f,k=%4.2f, \mu_{\alpha}=%4.2f,\sigma_{\alpha}=%4.2f, N=%i$'%
+              (desired_mae, k, mu_yaw, sigma_yaw, samples), fontsize=12)
+    ax2.axis('equal')
+
+    if left_right == 'right':
+        ax2.text(0.6,0.95, r'$desired: \mu_D=%5.3f$'%(desired_mae), transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.6,0.88, r'$desired: \sigma_D=%5.3f$'%(sigma_Y_theo), transform=ax2.transAxes, fontsize=12)
+
+        ax2.text(0.6,0.81, r'$simulated: \mu_D=%5.3f$'%(mae[steps-1]), transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.6,0.74, r'$simulated: \sigma_D=%5.3f$'%(sigma_Y_real), transform=ax2.transAxes, fontsize=12)
+
+        ax2.text(0.6, 0.67, r'$P(k)=\sigma_D/\mu_D=%5.3f$'%pk, transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.6, 0.60, r'$M(k)=\mu_D/\mu_X=%5.3f$'%parameter_m, transform=ax2.transAxes, fontsize=12)
+    else:
+        ax2.text(0.05,0.95, r'$desired: \mu_D=%5.3f$'%(desired_mae), transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.05,0.88, r'$desired: \sigma_D=%5.3f$'%(sigma_Y_theo), transform=ax2.transAxes, fontsize=12)
+
+        ax2.text(0.05,0.81, r'$simulated: \mu_D=%5.3f$'%(mae[steps-1]), transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.05,0.74, r'$simulated: \sigma_D=%5.3f$'%(sigma_Y_real), transform=ax2.transAxes, fontsize=12)
+
+        ax2.text(0.05, 0.67, r'$P(k)=\sigma_D/\mu_D=%5.3f$'%pk, transform=ax2.transAxes, fontsize=12)
+        ax2.text(0.05, 0.60, r'$M(k)=\mu_D/\mu_X=%5.3f$'%parameter_m, transform=ax2.transAxes, fontsize=12)
+
+    ax2_1 = ax2.inset_axes([0.05, 0.1, 0.4, 0.4])
+    ax2_1.plot(t, mae, 'r-')
+    ax2_1.plot([-1, 10],[desired_mae, desired_mae],'k--', lw=0.5)
+    ax2_1.set_xlim(0, max_t)
+    ax2_1.set_yticks([0,1,2,3,4,5])
+    ax2_1.set_xticks(np.arange(0, max_t+0.1, 1.0))
+
+    ax2_1.set_ylim(0, 5)
+
+    ax2_1.text(0.5*max_t, 4.5, "Real MAE", horizontalalignment='center', verticalalignment='center')
+    ax2_1.patch.set_alpha(0.5)
+
+    ax2_2 = ax2.inset_axes([0.6, 0.1, 0.38, 0.4])
+    ax2_2.hist(max_d_random_list, density=True, bins=30, alpha=0.5) # , alpha=0.5
+    ax2_2.set_xlim(0, 15)
+    ax2_2.set_ylim(0, 0.3)    
+    ax2_2.text(7.6, 0.26, "FDE Distribution", horizontalalignment='center', verticalalignment='center') 
+    ax2_2.patch.set_alpha(0.5)        
+
+    figname=save_path
     fig2.savefig(figname)
 
 
