@@ -42,7 +42,7 @@ GEM is able to simulate a VTP process with fully-controllable errors.
   `python Simulate_Prediction.py --help`
 
 ## Demonstration using real-world ground truth data
-  Three high-dynamic GT trajectories, selected from nuPlan, are used to demonstrate the the controllability and diversity of our GEM.
+  Three highly-dynamic GT trajectories, selected from nuPlan, are used to demonstrate the the controllability and diversity of our GEM.
   
   demo1
   <p align="center">
